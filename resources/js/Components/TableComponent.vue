@@ -3,23 +3,24 @@ import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Pagination from '@/Components/Pagination.vue'
 
-const sortTitle = ref('asc');
+const sortTitle = ref('');
 
 const emit = defineEmits(['update-sort', 'change-page']);
 
 const sortColumn = (column) => {
-    if(column === 'title') {
-        sortDoc.value = ''
-        if(sortTitle.value === '') {
-            sortTitle.value = 'desc';
-        } else {
-            sortTitle.value = sortTitle.value === 'desc' ? 'asc' : 'desc';
-        }
+    if(sortTitle.value === '') {
+        sortTitle.value = 'desc';
+    } else {
+        sortTitle.value = sortTitle.value === 'desc' ? 'asc' : 'desc';
     }
 
-    let values = {name: sortTitle.value};
+    let values = {title: sortTitle.value};
 
     emit('update-sort', values);
+}
+
+const deletePost = (id) => {
+    emit('delete-post', id)
 }
 
 const changePage = (page) => {
@@ -77,10 +78,10 @@ const props = defineProps({
                         <th scope="col" class="px-6 py-3">
 
                         </th>
-                        <th scope="col" class="px-6 py-3 cursor-pointer flex items-center" @click="sortColumn('title')">
+                        <th scope="col" class="px-6 py-3 cursor-pointer flex items-center" @click="sortColumn()">
                             Title
-                            <svg v-if="sortTitle === 'asc'" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-white"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
-                            <svg v-else viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-white"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            <svg v-if="sortTitle === 'asc'" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-white w-5 h-5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                            <svg v-else viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-white w-5 h-5"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                         </th>
                         <th scope="col" class="px-6 py-3 cursor-pointer">
                             Date Publish
@@ -102,19 +103,15 @@ const props = defineProps({
                         <td class="px-6 py-2">
                             {{ data.created_at }}
                         </td>
-                        <td class="px-6 py-2">
-                            {{ data.created_at }}
-                        </td>
-                        <!-- <td class="px-6 py-2 flex space-x-2 justify-end">
-                            <button @click="viewReports(cage.slug)" class="bg-custom-primary hover:bg-custom-secondary text-white font-bold text-xs py-1 px-2 rounded">
-                                <span><i class="fas fa-eye"></i></span>
+                        <td class="px-6 py-2 flex space-x-2 justify-end">
+                            <button @click="deletePost(data.slug)" class="bg-custom-primary hover:bg-custom-secondary text-red-500 font-bold text-xs py-1 px-2 rounded">
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
-                        </td> -->
+                        </td>
                     </tr>
                 </tbody>
             </table>
             <div v-if="props.datas.data?.length === 0" class="w-full flex justify-center">
-                asdasdas
                 <div class="py-20">
                     <div class="flex-col text-center">
                         <i class="fas fa-triangle-exclamation text-8xl text-custom-primary"></i>

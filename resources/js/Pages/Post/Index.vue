@@ -1,8 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { inject, onMounted, ref  } from 'vue'
 import PostsTable from '@/Components/TableComponent.vue';
+import { watchDebounced } from '@vueuse/core';
 import { usePostsStore } from '@/Store/usePostStore';
 
 const swal = inject('$swal');
@@ -29,11 +30,38 @@ const Toast = swal.mixin({
     }
 })
 
-const generateParams = (search, title) => {
+watchDebounced(search, () => {
+    store.fetchPosts(generateParams(search.value))
+}, {debounce: 500})
+
+const generateParams = (search) => {
     return {
         page: page.value,
         search: search,
-        sortTitle: title
+        sortTitle: sortTitle.value
+    }
+}
+
+const updateSort = (values) => {
+    sortTitle.value = values.title
+    store.fetchPosts(generateParams(search.value))
+}
+
+const deletePost = async (id) => {
+    try {
+        router.delete(route("post.destroy", id), {preserveScroll: true});
+        Toast.fire({
+            icon: 'success',
+            iconColor: '#1E40AF',
+            title: 'Post deleted successfully!'
+        })
+        store.fetchPosts(generateParams(search.value))
+    } catch (error) {
+        Toast.fire({
+            icon: 'error',
+            iconColor: '#EF4444',
+            title: 'Failed to delete post'
+        })
     }
 }
 
@@ -45,7 +73,7 @@ onMounted(() => {
             title: props.toast.message
         })
     }
-    store.fetchPosts(generateParams(search.value, 'asc'))
+    store.fetchPosts(generateParams(search.value))
 })
 </script>
 
@@ -69,8 +97,20 @@ onMounted(() => {
                     Create Post
                 </Link>
             </div>
-            <div class="mt-10">
-                <PostsTable :datas="store.getPosts"></PostsTable>
+            <div class="relative flex items-center w-full h-10 rounded bg-white overflow-hidden mt-8">
+                <div class="grid place-items-center h-full w-12 bg-blue-800">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+
+                <input
+                v-model="search"
+                class="h-full w-full outline-none text-sm text-gray-700 pr-2 border border-custom-primary rounded-r focus:border-custom-secondary"
+                type="text"
+                id="search"
+                placeholder="Search Title Here" />
+            </div>
+            <div class="mt-5">
+                <PostsTable :datas="store.getPosts" @update-sort="updateSort" @delete-post="deletePost"></PostsTable>
             </div>
         </div>
     </AuthenticatedLayout>

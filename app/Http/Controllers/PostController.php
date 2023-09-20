@@ -70,4 +70,22 @@ class PostController extends Controller
             ]
         ]);
     }
+
+    public function destroy($post)
+    {
+        $toDelete = Post::findBySlug($post);
+        try {
+            $toDelete->delete();
+        } catch (Throwable $caught) {
+            return Inertia::render('Post/Index', [
+                'toast' => [
+                    'type' => 'error',
+                    'message' => 'Something Went Wrong!',
+                ]
+            ]);
+        }
+
+
+        return redirect()->route('post.index');
+    }
 }
