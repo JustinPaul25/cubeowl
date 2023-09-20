@@ -22,6 +22,8 @@ class Post extends Model
         'created_at' => 'datetime:Y-m-d H:00',
     ];
 
+    // protected $appends = ['author'];
+
     public function getSlugOptions() : SlugOptions
     {
         return SlugOptions::create()

@@ -1,5 +1,5 @@
 <script setup>
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Pagination from '@/Components/Pagination.vue'
 
@@ -30,28 +30,28 @@ const changePage = (page) => {
 const pages = () => {
     const result = [];
 
-    if(props.cages.last_page < 6) {
-        for (let i = 1; i <= props.cages.last_page; i++) {
+    if(props.datas.last_page < 6) {
+        for (let i = 1; i <= props.datas.last_page; i++) {
             result.push(i);
         }
         return result;
     } else {
-        if(props.cages.current_page < 5) {
+        if(props.datas.current_page < 5) {
             return [1, 2, 3, 4, 5];
         }
 
-        if(props.cages.current_page > 4 && props.cages.current_page <= props.cages.last_page) {
+        if(props.datas.current_page > 4 && props.datas.current_page <= props.datas.last_page) {
             let itr = 4;
-            if(props.cages.current_page != props.cages.last_page) {
-                result.push(props.cages.current_page + 1);
-                result.push(props.cages.current_page);
+            if(props.datas.current_page != props.datas.last_page) {
+                result.push(props.datas.current_page + 1);
+                result.push(props.datas.current_page);
                 itr = 3
             } else {
-                result.push(props.cages.current_page);
+                result.push(props.datas.current_page);
             }
 
             for (let i = 1; i <= itr; i++) {
-                result.push(props.cages.current_page - i);
+                result.push(props.datas.current_page - i);
             }
 
             return result.reverse();
@@ -104,6 +104,9 @@ const props = defineProps({
                             {{ data.created_at }}
                         </td>
                         <td class="px-6 py-2 flex space-x-2 justify-end">
+                            <Link :href="route('post.show', data.slug)" class="bg-custom-primary hover:bg-custom-secondary text-blue-800 font-bold text-xs py-1 px-2 rounded">
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </Link>
                             <button @click="deletePost(data.slug)" class="bg-custom-primary hover:bg-custom-secondary text-red-500 font-bold text-xs py-1 px-2 rounded">
                                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
@@ -120,6 +123,6 @@ const props = defineProps({
                 </div>
             </div>
         </div>
-        <!-- <Pagination :cages="props.posts" :pages="pages()" @change-page="changePage"></Pagination> -->
+        <Pagination :datas="props.datas" :pages="pages()" @change-page="changePage"></Pagination>
     </div>
 </template>

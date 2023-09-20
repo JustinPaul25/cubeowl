@@ -47,15 +47,32 @@ const updateSort = (values) => {
     store.fetchPosts(generateParams(search.value))
 }
 
-const deletePost = async (id) => {
+const changePage = (newPage) => {
+    page.value = newPage
+    store.fetchPosts(generateParams(search.valuee))
+}
+
+const deletePost = (id) => {
     try {
-        router.delete(route("post.destroy", id), {preserveScroll: true});
-        Toast.fire({
-            icon: 'success',
-            iconColor: '#1E40AF',
-            title: 'Post deleted successfully!'
+        swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+        if (result.isConfirmed) {
+                router.delete(route("post.destroy", id), {preserveScroll: true});
+                Toast.fire({
+                    icon: 'success',
+                    iconColor: '#1E40AF',
+                    title: 'Post deleted successfully!'
+                })
+                store.fetchPosts(generateParams(search.value))
+            }
         })
-        store.fetchPosts(generateParams(search.value))
     } catch (error) {
         Toast.fire({
             icon: 'error',
@@ -110,7 +127,7 @@ onMounted(() => {
                 placeholder="Search Title Here" />
             </div>
             <div class="mt-5">
-                <PostsTable :datas="store.getPosts" @update-sort="updateSort" @delete-post="deletePost"></PostsTable>
+                <PostsTable :datas="store.getPosts" @update-sort="updateSort" @delete-post="deletePost" @change-page="changePage"></PostsTable>
             </div>
         </div>
     </AuthenticatedLayout>

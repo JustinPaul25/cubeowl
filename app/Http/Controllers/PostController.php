@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\Post\PostCreateRequest;
+use App\Http\Requests\Post\PostUpdateRequest;
 use Illuminate\Support\Facades\Request as ToastRequest;
 
 class PostController extends Controller
@@ -15,7 +17,7 @@ class PostController extends Controller
         return Inertia::render('Post/Index',[
             'toast' => [
                 'type' => 'none',
-                'message' => 'Something Went Wrong!',
+                'message' => '',
             ]
         ]);
     }
@@ -45,6 +47,17 @@ class PostController extends Controller
         return Inertia::render('Post/Create');
     }
 
+    public function show($post)
+    {
+        return Inertia::render('Post/Show', [
+            'post' => Post::findBySlug($post),
+            'toast' => [
+                'type' => 'none',
+                'message' => '',
+            ]
+        ]);
+    }
+
     public function store(PostCreateRequest $request)
     {
         try {
@@ -69,6 +82,26 @@ class PostController extends Controller
                 'message' => 'Post Created!',
             ]
         ]);
+    }
+
+    public function update(PostUpdateRequest $request, $post)
+    {
+        $toUpdate = Post::findBySlug($post);
+        try {
+            $toUpdate->update([
+                'title' => $request->input('title'),
+                'description' => $request->input('description'),
+            ]);
+        } catch (Throwable $caught) {
+            return Inertia::render('Post/Index', [
+                'toast' => [
+                    'type' => 'error',
+                    'message' => 'Something Went Wrong!',
+                ]
+            ]);
+        }
+
+        return Redirect::route('post.show', $toUpdate->slug);
     }
 
     public function destroy($post)
